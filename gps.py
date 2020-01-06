@@ -1,15 +1,14 @@
-import pynmea2, datetime, sys
+import pynmea2, sys
 import pandas as pd
-import numpy as np
 
 import functions as fct
 
-filename = 'test.nmea'
+filename = 'gps-total.nmea'
 output = 'out.csv'
 
 def addRowInDataFrame(raw_row, df):
     df_concat = []
-    for i, msg in enumerate(raw_row):
+    for ignore, msg in enumerate(raw_row):
         mtype = type(msg).__name__
 
         if mtype in fct.functions:
@@ -22,14 +21,17 @@ def addRowInDataFrame(raw_row, df):
         else:
             continue
 
-    df_row = pd.concat(df_concat, axis=1)
-    valid = df_row.get('Valid?')[0]
+    try:
+        df_row = pd.concat(df_concat, axis=1)
+        valid = df_row.get('Valid?')[0]
 
-    # Concat row in DataFrame if it is valid
-    if valid:
-        df = pd.concat([df, df_row])
+        # Concat row in DataFrame if it is valid
+        if valid:
+            df = pd.concat([df, df_row])
 
-    return df
+        return df
+    except KeyError:
+        return df
 
 
 e = []
@@ -43,6 +45,11 @@ with open(filename, 'r') as f:
     for line in f:
         total_lines += 1
 
+print('Input file: "{}" ({} lines)'.format(filename, total_lines))
+print('Output file: "{}"'.format(output))
+
+print('')
+
 with open(filename, 'r') as f:
     i = 0
     for line in f:
@@ -50,31 +57,32 @@ with open(filename, 'r') as f:
         print('Line {}/{}'.format(i, total_lines), end='\r')
         try:
             msg = pynmea2.parse(line)
-            if type(msg).__name__ == 'TXT':
-                pass
-                # print('Ignoring TXT message', end='\r')
-                # print(repr(msg))
-            else:
+            if type(msg).__name__ != 'TXT':
                 if first == None:
                     first = msg
                 elif type(msg) == type(first):
                     data = addRowInDataFrame(row, data)
                     row = []
+
                 row.append(msg)
         except:
-            e.append(sys.exc_info()[0])
+            e.append('{}: {}'.format(i, sys.exc_info()[1]))
 
 if len(row) > 1:
     data = addRowInDataFrame(row, data)
 
+print('')
+print('')
+print('Saving into "{}"'.format(output))
+print('')
+
 data.to_csv(output, index=False)
 
-print('')
 
 if len(e) == 0:
     print('Ok')
 else:
     print('There were some errors')
     for err in e:
-        print(repr(err))
+        print(err)
 
