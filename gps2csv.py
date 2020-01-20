@@ -1,3 +1,4 @@
+#!/usr/bin/python3
 import pynmea2, sys, getopt
 import pandas as pd
 
@@ -27,14 +28,14 @@ def addRowInDataFrame(raw_row, df):
             df = pd.concat([df, df_row])
 
         return df
-    except KeyError:
+    except:
         return df
 
-help_str = ("Usage: gps.py -i <input> -o <output>\n"
+help_str = ("Usage: gps2csv.py -i <input> -o <output>\n"
             "Convert .nmea to .csv\n"
             "\n"
             "  -h, --help   Print this help message and exit\n"
-            "  -i, --input  Read <input> file\n"
+            "  -i, --input  Read data from <input> file\n"
             "  -o, --output Write processed data in <output> file\n"
 )
 
