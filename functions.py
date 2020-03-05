@@ -1,7 +1,7 @@
 import datetime
 
 columns = {
-    'RMC': ['Date/time UTC', 'Date/time BR', 'X', 'Y',
+    'RMC': ['Date', 'Time', 'X', 'Y',
             'Latitude', 'Longitude'],
     'VTG': ['Knots', 'M/H', 'KM/H'],
     'GGA': ['Altitude (m)', 'Altitude (ft)'],
@@ -10,12 +10,13 @@ columns = {
 
 def RMCData(msg):
     '''
-    Date/time UTC, Date/time BR, X, Y, Latitude, Longitude
+    Date, Time, X, Y, Latitude, Longitude
+    Brasilia Time (BRT), UTC -3
     '''
     UTC = datetime.datetime.combine(msg.datestamp, msg.timestamp)
     BR = UTC - datetime.timedelta(hours=3)
 
-    return [UTC.isoformat(' '), BR.isoformat(' '), msg.longitude,
+    return [BR.date().isoformat(), BR.time().isoformat(), msg.longitude,
             msg.latitude, msg.latitude, msg.longitude]
 
 def VTGData(msg):
