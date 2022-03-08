@@ -7,6 +7,6 @@ This project do not support all GPS messages yet.
 | Message Type | Used Data |
 |---|---|
 |RMC|Date, Time, Latitude, Longitude|
-|VTG|Knots, Kilometers per Hour|
-|GGA|Altitude|
+|VTG|Heading, Knots, Miles per Hour, Kilometers per Hour|
+|GGA|Altitude (m), Altitude (ft)|
 |GLL|Status|
