@@ -3,7 +3,7 @@ import datetime
 columns = {
     'RMC': ['Date', 'Time', 'X', 'Y',
             'Latitude', 'Longitude'],
-    'VTG': ['Knots', 'M/H', 'KM/H'],
+    'VTG': ['Heading', 'Knots', 'M/H', 'KM/H'],
     'GGA': ['Altitude (m)', 'Altitude (ft)'],
     'GLL': ['Valid?']
 }
@@ -13,24 +13,29 @@ def RMCData(msg):
     Date, Time, X, Y, Latitude, Longitude
     Brasilia Time (BRT), UTC -3
     '''
-    UTC = datetime.datetime.combine(msg.datestamp, msg.timestamp)
-    BR = UTC - datetime.timedelta(hours=3)
+    try:
+        UTC = datetime.datetime.combine(msg.datestamp, msg.timestamp)
+        BR = UTC - datetime.timedelta(hours=3)
 
-    return [BR.date().isoformat(), BR.time().isoformat(), msg.longitude,
-            msg.latitude, msg.latitude, msg.longitude]
+        return [BR.date().isoformat(), BR.time().isoformat(), msg.longitude,
+                msg.latitude, msg.latitude, msg.longitude]
+    except:
+        return ['', '', msg.longitude, msg.latitude, msg.latitude, msg.longitude]
 
 def VTGData(msg):
     '''
-    Knots, M/H, KM/H
+    Heading, Knots, M/H, KM/H
     '''
     try:
         knot = float(msg.spd_over_grnd_kts)
         knot2mh = 1.15078
         miles = knot2mh * knot
+        heading = msg.true_track
+        kmhr = msg.spd_over_grnd_kmph
 
-        return [knot, miles, msg.spd_over_grnd_kmph]
+        return [heading, knot, miles, kmhr]
     except:
-        return ['', '', '']
+        return ['', '', '', '']
 
 def GGAData(msg):
     '''
@@ -59,4 +64,3 @@ functions = {
     'GGA': GGAData,
     'GLL': GLLData,
 }
-
